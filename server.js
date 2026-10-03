@@ -6,12 +6,13 @@ const path = require('path');
 const multer = require('multer');
 
 const connectDB = require('./config/db');
+const migrateLegacyCategories = require('./utils/migrateLegacyCategories');
 
 const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-connectDB();
+connectDB().then(migrateLegacyCategories);
 
 app.use(cors());
 app.use(express.json());
@@ -19,13 +20,15 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
 
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Product CRUD API is running',
+    message: 'Product & Category CRUD API is running',
     endpoints: {
       products: `http://localhost:${PORT}/api/products`,
+      categories: `http://localhost:${PORT}/api/categories`,
       uploads: `http://localhost:${PORT}/uploads`,
     },
   });
@@ -53,8 +56,15 @@ app.use((error, req, res, next) => {
     return res.status(400).json({ success: false, message: error.message });
   }
 
+  if (error && error.type === 'entity.parse.failed') {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Invalid JSON in request body' });
+  }
+
   if (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    const status = error.status || error.statusCode || 500;
+    return res.status(status).json({ success: false, message: error.message });
   }
 
   next();

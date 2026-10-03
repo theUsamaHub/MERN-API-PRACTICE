@@ -18,9 +18,9 @@ const productSchema = new mongoose.Schema(
       min: [0, 'Price cannot be negative'],
     },
     category: {
-      type: String,
-      default: '',
-      trim: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      default: null,
     },
     stock: {
       type: Number,
