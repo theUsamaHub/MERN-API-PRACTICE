@@ -1,3 +1,8 @@
+PORT=5000
+MONGODB_URI=mongodb+srv://usama:8OmkOlez4i42gYTq@cluster0.epsxqwv.mongodb.net/productDB?appName=Cluster0
+
+
+
 # Product CRUD API
 
 RESTful Product CRUD API built with **Express.js**, **MongoDB (Atlas)** and **Multer** for image uploading.
